@@ -7,7 +7,8 @@ pygame.init()
 WIDTH = 800
 HEIGHT = 700
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
-pygame.display.set_caption('Two-Player Pygame Chess!')
+pygame.display.set_caption('Chess')
+pygame.display.set_icon(pygame.image.load('assets/images/white pawn.png'))
 font = pygame.font.Font('freesansbold.ttf', 16)
 medium_font = pygame.font.Font('freesansbold.ttf', 32)
 big_font = pygame.font.Font('freesansbold.ttf', 40)
