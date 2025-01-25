@@ -147,6 +147,7 @@ prior_white_locations_one_player = white_locations_one_player
 prior_black_locations_one_player = black_locations_one_player
 
 save_prior_captured_piece = False
+save_prior_captured_piece_one_player = False
 
 prior_captured_white_pieces = []
 prior_captured_black_pieces = []
@@ -155,13 +156,19 @@ prior_captured_black_pieces_one_player = []
 
 last_captured_piece_black = None
 last_captured_piece_white = None
+last_captured_piece_black_one_player = None
+last_captured_piece_white_one_player = None
 
 # 0 - whites turn no selection: 1-whites turn piece selected: 2- black turn no selection, 3 - black turn piece selected
 turn_step = 0
-turn_step = 0
+turn_step_one_player = 0
 selection = 100
+selection_one_player = 100
 valid_moves = []
+valid_moves_one_player = []
 no_undo = False
+no_undo_one_player = False
+no_undo_one_player = False
 
 # Carrega as peças do jogo (rainha, rei, torre, bispo, cavalo, peão) x 2
 # load in game piece images (queen, king, rook, bishop, knight, pawn) x 2
@@ -211,6 +218,8 @@ red_x_icon = resize_images_with_pillow('assets/images/red x icon.png', pc(64), p
 big_black_bishop_language = resize_images_with_pillow('assets/images/black bishop.png', pc(400), pc(400))
 big_white_king = resize_images_with_pillow('assets/images/white king.png', pc(500), pc(500))
 big_black_queen = resize_images_with_pillow('assets/images/black queen.png', pc(500), pc(500))
+big_white_pawn = resize_images_with_pillow('assets/images/white pawn.png', pc(80), pc(80))
+big_black_pawn = resize_images_with_pillow('assets/images/black pawn.png', pc(80), pc(80))
 
 default_image_board_0 = resize_images_with_pillow('assets/images/Image Boards/default_image_board_0.png', pc(225), pc(216))
 increased_default_image_board_0 = resize_images_with_pillow('assets/images/Image Boards/default_image_board_0.png', pc(250), pc(240))
@@ -241,8 +250,11 @@ check_ok_radio = {"check_ok_1": "True",
 # Verifica as variáveis / Contador
 # check variables/ flashing counter 
 counter = 0
+counter_one_player = 0
 winner = ''
+winner_one_player = ''
 game_over = False
+game_over_one_player = False
 one_time_action = True
 one_time_word = True
 selected_board = False
@@ -287,7 +299,6 @@ def play_captured_movie_audio():
         play_audio(captured_piece_song_3, 0)
     else:
         play_audio(captured_piece_song_4, 0)
-    
 
 def draw_rounded_rects(x_position, y_position, rect_width, rect_height):
     radius = pc(5)
@@ -304,8 +315,8 @@ def draw_rounded_rects(x_position, y_position, rect_width, rect_height):
     pygame.draw.rect(screen, 'black', pygame.Rect(rect.left, rect.top + radius, radius, rect.height - pc(2) * radius))  # Esquerda
     pygame.draw.rect(screen, 'black', pygame.Rect(rect.right - radius, rect.top + radius, radius, rect.height - pc(2) * radius))  # Direita
 
-def print_word_in_the_middle(x_coord, y_coord, width, height, font, word, between_rect):
-    text_surface = font.render(word, True, 'black')
+def print_word_in_the_middle(x_coord, y_coord, width, height, font, word, between_rect, color):
+    text_surface = font.render(word, True, color)
     text_width, text_height = text_surface.get_size()
     
     if between_rect == True:
@@ -335,7 +346,7 @@ def get_coord_and_rect(image, x_position, y_position):
     
     return image_rect
 
-def increase_button(initial_y_position, height_between_buttons, initial_x_position, width_rect, height_rect, font_increased, font, font_increased_alternative, font_alternative, alternative_words, words, mouse_x, mouse_y):
+def increase_button(initial_y_position, height_between_buttons, initial_x_position, width_rect, height_rect, font_increased, font, font_increased_alternative, font_alternative, alternative_words, words, color_main, alternative_color, mouse_x, mouse_y):
     
     # Calcula as posições Y para os botões do menu (vai mudar com base em 'i')
     for i, word in enumerate(words):
@@ -347,12 +358,14 @@ def increase_button(initial_y_position, height_between_buttons, initial_x_positi
             draw_rounded_rects(initial_x_position - 10, pc(y_position - 10), width_rect + 20, height_rect + 20)
             # Determinar a fonte com base na lista `alternative_words`
             font_to_use = font_increased_alternative if word in alternative_words else font_increased
-            pwm(initial_x_position - 10, pc(y_position - 10), width_rect + 20, height_rect + 20, font_to_use, word, True)
+            color_to_use = alternative_color if word in alternative_words else color_main
+            pwm(initial_x_position - 10, pc(y_position - 10), width_rect + 20, height_rect + 20, font_to_use, word, True, color_to_use)
         else:
             draw_rounded_rects(initial_x_position, y_position, width_rect, height_rect)
             # Determinar a fonte com base na lista `alternative_words`
             font_to_use = font_alternative if word in alternative_words else font
-            pwm(initial_x_position, y_position, width_rect, height_rect, font_to_use, word, True)
+            color_to_use = alternative_color if word in alternative_words else color_main
+            pwm(initial_x_position, y_position, width_rect, height_rect, font_to_use, word, True, color_to_use)
 
 def increase_image(image, increased_image, x_position, y_position, selected_board, mouse_x, mouse_y):
     # Obter a largura e altura da imagem
@@ -402,6 +415,9 @@ def language_option(key_translate):
             "options_buttons": ['MENU', 'FORFEIT', 'UNDO'],
             "undo": 'UNDO',
             "game_mode": ['One Player', 'Two Players'],
+            "mode": ['GAME MODE'],
+            "black_or_white": ['WHITE', 'BLACK'],
+            "white": 'WHITE',
         },
         "portuguese": {
             "menu_items": ['JOGAR', 'AJUSTES', 'CUSTOMIZAR'],
@@ -420,6 +436,9 @@ def language_option(key_translate):
             "options_buttons": ['MENU', 'DESISTIR', 'VOLTAR'],
             "undo": 'VOLTAR',
             "game_mode": ['Um Jogador', 'Dois Jogadores'],
+            "mode": ['MODO DE JOGO'],
+            "black_or_white": ['BRANCAS', 'PRETAS'],
+            "white": 'BRANCAS',
         },
         "spanish": {
             "menu_items": ['JUGAR', 'AJUSTES', 'CUSTOMIZAR'],
@@ -437,7 +456,10 @@ def language_option(key_translate):
             "menu_items_continue": ['CONTINUAR', 'AJUSTES', 'CUSTOMIZAR'],
             "options_buttons": ['MENU', 'DESISTIR', 'VOLVER'],
             "undo": 'VOLVER',
-            "game_mode": ['Un Jugador', 'Dos Jugadores']
+            "game_mode": ['Un Jugador', 'Dos Jugadores'],
+            "mode": ['MODO DE JUEGO'],
+            "black_or_white": ['BLANCAS', 'NEGRAS'],
+            "white": 'BLANCAS',
         },
     }
 
@@ -457,7 +479,7 @@ def font_size_by_language(default_font_size, other_font_size):
 
 def draw_menu(mouse_x, mouse_y, first_button_word):
     # Desenha o título "CHESS"
-    pwm(0, pc(40), WIDTH, 0, font_size_by_language(font_180, font_170), language_option("title"), False)
+    pwm(0, pc(40), WIDTH, 0, font_size_by_language(font_180, font_170), language_option("title"), False, 'black')
     
     # Imprime a imagem da peça do cavalo nas laterais da tela
     screen.blit(pygame.transform.flip(black_knight_menu, True, False), ((pc(-30)), pc(140)))
@@ -465,13 +487,13 @@ def draw_menu(mouse_x, mouse_y, first_button_word):
     
     # Lista de itens do menu e suas posições X
     
-    increase_button(pc(273), pc(125), pc(406), pc(550), pc(80), font_90, font_80, font_80, font_70, 'CUSTOMIZAR', language_option(first_button_word), mouse_x, mouse_y)
+    increase_button(pc(273), pc(125), pc(406), pc(550), pc(80), font_90, font_80, font_80, font_70, 'CUSTOMIZAR', language_option(first_button_word), 'black', 'black', mouse_x, mouse_y)
     
 def draw_settings(mouse_x, mouse_y):
     # Desenha a tela de configurações - settings
-    pwm(0, pc(40), WIDTH, 0, font_140, language_option("settings"), False)
+    pwm(0, pc(40), WIDTH, 0, font_140, language_option("settings"), False, 'black')
     
-    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_70, font_60, 0, 0, (''), [('MENU')], mouse_x, mouse_y)     
+    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_70, font_60, 0, 0, (''), [('MENU')], 'black', 'black',mouse_x, mouse_y)     
     
     #big pawn image
     screen.blit(big_white_rook, (pc(-30), pc(200)))
@@ -479,7 +501,7 @@ def draw_settings(mouse_x, mouse_y):
     # Gear image
     screen.blit(gear_image, (pc(1050), pc(57)))
     
-    increase_button(pc(273), pc(125), pc(406), pc(550), pc(80), font_90, font_80, 0, 0, (''), language_option("settings_items"), mouse_x, mouse_y)     
+    increase_button(pc(273), pc(125), pc(406), pc(550), pc(80), font_90, font_80, 0, 0, (''), language_option("settings_items"), 'black', 'black', mouse_x, mouse_y)     
     
     if audio == True:
         screen.blit(check_ok_icon, (pc(976), pc(283)))
@@ -487,9 +509,9 @@ def draw_settings(mouse_x, mouse_y):
         screen.blit(red_x_icon, (pc(976), pc(283)))
         
 def draw_language(mouse_x, mouse_y, english, portuguese):
-    pwm(0, pc(40), WIDTH, 0, font_140, language_option("language"), False)
-    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_50, font_40, 0, 0, (''), [(language_option("settings"))], mouse_x, mouse_y)
-    increase_button(pc(233), pc(150), pc(406), pc(550), pc(100), font_90, font_80, 0, 0, (''), language_items, mouse_x, mouse_y)
+    pwm(0, pc(40), WIDTH, 0, font_140, language_option("language"), False, 'black')
+    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_50, font_40, 0, 0, (''), [(language_option("settings"))], 'black', 'black', mouse_x, mouse_y)
+    increase_button(pc(233), pc(150), pc(406), pc(550), pc(100), font_90, font_80, 0, 0, (''), language_items, 'black', 'black', mouse_x, mouse_y)
     screen.blit(big_black_bishop_language, (pc(-30), pc(200)))
     
     if english == True:
@@ -500,7 +522,7 @@ def draw_language(mouse_x, mouse_y, english, portuguese):
         screen.blit(check_ok_icon, (pc(976), pc(548)))
 
 def draw_custom(mouse_x, mouse_y):
-    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_70, font_60, 0, 0, (''), [('MENU')], mouse_x, mouse_y)
+    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_70, font_60, 0, 0, (''), [('MENU')], 'black', 'black', mouse_x, mouse_y)
     
     images = [
     (default_image_board_0, increased_default_image_board_0, pc(40), pc(140)),
@@ -524,16 +546,24 @@ def draw_custom(mouse_x, mouse_y):
             screen.blit(check_ok_icon, (pc(x + 240), pc(middle)))  # Exibe o ícone na posição calculada
 
 def draw_game_mode(mouse_x, mouse_y):
-    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_70, font_60, 0, 0, (''), [('MENU')], mouse_x, mouse_y)
+    increase_button(pc(20), 0, pc(20), pc(240), pc(80), font_70, font_60, 0, 0, (''), [('MENU')], 'black', 'black', mouse_x, mouse_y)
     
-    increase_button(pc(184), pc(160), pc(403), pc(600), pc(120), font_90, font_80, font_80, font_70, ['Dois Jogadores', 'Dos Jugadores'], language_option('game_mode'), mouse_x, mouse_y)
+    increase_button(pc(184), pc(160), pc(403), pc(600), pc(120), font_90, font_80, font_80, font_70, ['Dois Jogadores', 'Dos Jugadores'], language_option('game_mode'), 'black', 'black', mouse_x, mouse_y)
     
     screen.blit(big_white_king, (pc(925), pc(134)))
     screen.blit(big_black_queen, (pc(-50), pc(134)))
+
+def draw_black_or_white(mouse_x, mouse_y):
+    increase_button(pc(20), 0, pc(20), pc(360), pc(80), font_45, font_40, 0, 0, '', language_option("mode"), 'black', 'black', mouse_x, mouse_y)
+    
+    increase_button(pc(184), pc(160), pc(403), pc(600), pc(120), font_90, font_80, font_80, font_70, language_option("white"), language_option("black_or_white"), "black", "white", mouse_x, mouse_y)
+    
+    screen.blit(big_white_pawn, (pc(1023), pc(204)))
+    screen.blit(big_black_pawn, (pc(1023), pc(364)))
     
 # Desenha o tabuleiro principal do jogo
 # draw main game board
-def draw_board(first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces):
+def draw_board(first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces, turn_step_main):
     for i in range(32):
         column = i % 4
         row = i // 4
@@ -551,43 +581,43 @@ def draw_board(first_color_square, second_color_square, color_rect_captured_piec
         
         status_text = [language_option("turn_step"), language_option("turn_step"),
                        language_option("turn_step_2"), language_option("turn_step_2")]
-        screen.blit(font_size_by_language(big_font, smaller_font).render(status_text[turn_step], True, black_and_white_text(turn_step)), (pc(299), pc(653)))
+        screen.blit(font_size_by_language(big_font, smaller_font).render(status_text[turn_step], True, black_and_white_text(turn_step_main)), (pc(299), pc(653)))
 
         for i in range(9):
             pygame.draw.line(screen, 'black', (pc(283), pc(80) * i), (pc(923), pc(80) * i), pc(2))
             pygame.draw.line(screen, 'black', (pc(283) + pc(80) * i, 0), (pc(283) + pc(80) * i, pc(640)), pc(2))
         
 def draw_options(mouse_x, mouse_y):
-    increase_button(pc(20), pc(125), pc(20), pc(240), pc(80), font_70, font_60, font_55, font_45, (language_option('forfeit'), language_option("undo")), language_option("options_buttons"), mouse_x, mouse_y)
+    increase_button(pc(20), pc(125), pc(20), pc(240), pc(80), font_70, font_60, font_55, font_45, (language_option('forfeit'), language_option("undo")), language_option("options_buttons"), "black", "black", mouse_x, mouse_y)
 
 # Desenha peças no tabuleiro
 # draw pieces onto board
-def draw_pieces():
-    for i in range(len(white_pieces)):
-        index = piece_list.index(white_pieces[i])
-        if white_pieces[i] == "pawn":
-            screen.blit(white_pawn, (white_locations[i][0] * pc(80) + pc(298), white_locations[i][1] * pc(80) + pc(14)))
+def draw_pieces(white_piece_list_locations, black_piece_list_locations, white_piece_list, black_piece_list, selection_main, turn_step_main):
+    for i in range(len(white_piece_list)):
+        index = piece_list.index(white_piece_list[i])
+        if white_piece_list[i] == "pawn":
+            screen.blit(white_pawn, (white_piece_list_locations[i][0] * pc(80) + pc(298), white_piece_list_locations[i][1] * pc(80) + pc(14)))
         else:
-            screen.blit(white_images[index], (white_locations[i][0] * pc(80) + pc(292), white_locations[i][1] * pc(80) + pc(8)))
-        if turn_step < 2:
-            if selection == i:
-                pygame.draw.rect(screen, 'red', [white_locations[i][0] * pc(80) + pc(284), white_locations[i][1] * pc(80) + pc(1),
+            screen.blit(white_images[index], (white_piece_list_locations[i][0] * pc(80) + pc(292), white_piece_list_locations[i][1] * pc(80) + pc(8)))
+        if turn_step_main < 2:
+            if selection_main == i:
+                pygame.draw.rect(screen, 'red', [white_piece_list_locations[i][0] * pc(80) + pc(284), white_piece_list_locations[i][1] * pc(80) + pc(1),
                                                  pc(80), pc(80)], pc(2))
                 
-    for i in range(len(black_pieces)):
-        index = piece_list.index(black_pieces[i])
-        if black_pieces[i] == 'pawn':
-            screen.blit(black_pawn, (black_locations[i][0] * pc(80) + pc(298), black_locations[i][1] * pc(80) + pc(18)))
+    for i in range(len(black_piece_list)):
+        index = piece_list.index(black_piece_list[i])
+        if black_piece_list[i] == 'pawn':
+            screen.blit(black_pawn, (black_piece_list_locations[i][0] * pc(80) + pc(298), black_piece_list_locations[i][1] * pc(80) + pc(18)))
         else:
-            screen.blit(black_images[index], (black_locations[i][0] * pc(80) + pc(292), black_locations[i][1] * pc(80) + pc(8)))
-        if turn_step >= 2:
-            if selection == i:
-                pygame.draw.rect(screen, 'blue', [black_locations[i][0] * pc(80) + pc(283), black_locations[i][1] * pc(80) + pc(1),
+            screen.blit(black_images[index], (black_piece_list_locations[i][0] * pc(80) + pc(292), black_piece_list_locations[i][1] * pc(80) + pc(8)))
+        if turn_step_main >= 2:
+            if selection_main == i:
+                pygame.draw.rect(screen, 'blue', [black_piece_list_locations[i][0] * pc(80) + pc(283), black_piece_list_locations[i][1] * pc(80) + pc(1),
                                                  pc(80), pc(80)], pc(1))
 
 # Função para verificar de todas as opções válidas de peças no tabuleiro
 # function to check all pieces valid options on board
-def check_options(pieces, locations, turn):
+def check_options(pieces, locations, turn, white_piece_list_locations, black_piece_list_locations):
     moves_list = []
     all_moves_list = []
     print('locations = ', locations)
@@ -595,31 +625,31 @@ def check_options(pieces, locations, turn):
         location = locations[i]
         piece = pieces[i]
         if piece == 'pawn':
-            moves_list = check_pawn(location, turn)
+            moves_list = check_pawn(location, turn, white_piece_list_locations, black_piece_list_locations)
         elif piece == 'rook':
-            moves_list = check_rook(location, turn)
+            moves_list = check_rook(location, turn, white_piece_list_locations, black_piece_list_locations)
         elif piece == 'knight':
-            moves_list = check_knight(location, turn)
+            moves_list = check_knight(location, turn, white_piece_list_locations, black_piece_list_locations)
         elif piece == 'bishop':
-            moves_list = check_bishop(location, turn)
+            moves_list = check_bishop(location, turn, white_piece_list_locations, black_piece_list_locations)
         elif piece == 'queen':
-            moves_list = check_queen(location, turn)
+            moves_list = check_queen(location, turn, white_piece_list_locations, black_piece_list_locations)
         elif piece == 'king':
-            moves_list = check_king(location, turn)
+            moves_list = check_king(location, turn, white_piece_list_locations, black_piece_list_locations)
         all_moves_list.append(moves_list)
     print("location = ", location)
     return all_moves_list
 
 # Verifica os movimentos válidos do rei
 # check king valid moves
-def check_king(position, color):
+def check_king(position, color, white_piece_list_locations, black_piece_list_locations):
     moves_list = []
     if color == 'white':
-        enemies_list = black_locations
-        friends_list = white_locations
+        enemies_list = black_piece_list_locations
+        friends_list = white_piece_list_locations
     else:
-        friends_list = black_locations
-        enemies_list = white_locations
+        friends_list = black_piece_list_locations
+        enemies_list = white_piece_list_locations
     # 8 squares to check for kings, they can go one square any direction
     targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
     for i in range(8):
@@ -630,23 +660,23 @@ def check_king(position, color):
 
 # Verifica os movimentos válidos da rainha
 # check queen valid moves
-def check_queen(position, color):
-    moves_list = check_bishop(position, color)
-    second_list = check_rook(position, color)
+def check_queen(position, color, white_piece_list_locations, black_piece_list_locations):
+    moves_list = check_bishop(position, color, white_piece_list_locations, black_piece_list_locations)
+    second_list = check_rook(position, color, white_piece_list_locations, black_piece_list_locations)
     for i in range(len(second_list)):
         moves_list.append(second_list[i])
     return moves_list
 
 # Verifica os movimentos válidos do bispo
 # check bishop moves
-def check_bishop(position, color):
+def check_bishop(position, color, white_piece_list_locations, black_piece_list_locations):
     moves_list = []
     if color == 'white':
-        enemies_list = black_locations
-        friends_list = white_locations
+        enemies_list = black_piece_list_locations
+        friends_list = white_piece_list_locations
     else:
-        friends_list = black_locations
-        enemies_list = white_locations
+        friends_list = black_piece_list_locations
+        enemies_list = white_piece_list_locations
     for i in range(4):  # up-right, up-left, down-right, down-left
         path = True
         chain = 1
@@ -675,14 +705,14 @@ def check_bishop(position, color):
 
 # Verifica os movimentos válidos da torre
 # check rook moves
-def check_rook(position, color):
+def check_rook(position, color, white_piece_list_locations, black_piece_list_locations):
     moves_list = []
     if color == 'white':
-        enemies_list = black_locations
-        friends_list = white_locations
+        enemies_list = black_piece_list_locations
+        friends_list = white_piece_list_locations
     else:
-        friends_list = black_locations
-        enemies_list = white_locations
+        friends_list = black_piece_list_locations
+        enemies_list = white_piece_list_locations
     for i in range(4):  # down, up, right, left
         path = True
         chain = 1
@@ -711,42 +741,42 @@ def check_rook(position, color):
 
 # Verifica os movimentos válidos do peão
 # check valid pawn moves
-def check_pawn(position, color):
+def check_pawn(position, color, white_piece_list_locations, black_piece_list_locations):
     moves_list = []
     if color == 'white':
-        if (position[0], position[1] + 1) not in white_locations and \
-                (position[0], position[1] + 1) not in black_locations and position[1] < 7:
+        if (position[0], position[1] + 1) not in white_piece_list_locations and \
+                (position[0], position[1] + 1) not in black_piece_list_locations and position[1] < 7:
             moves_list.append((position[0], position[1] + 1))
-        if (position[0], position[1] + 2) not in white_locations and \
-                (position[0], position[1] + 2) not in black_locations and position[1] == 1:
+        if (position[0], position[1] + 2) not in white_piece_list_locations and \
+                (position[0], position[1] + 2) not in black_piece_list_locations and position[1] == 1:
             moves_list.append((position[0], position[1] + 2))
-        if (position[0] + 1, position[1] + 1) in black_locations:
+        if (position[0] + 1, position[1] + 1) in black_piece_list_locations:
             moves_list.append((position[0] + 1, position[1] + 1))
-        if (position[0] - 1, position[1] + 1) in black_locations:
+        if (position[0] - 1, position[1] + 1) in black_piece_list_locations:
             moves_list.append((position[0] - 1, position[1] + 1))
     else:
-        if (position[0], position[1] - 1) not in white_locations and \
-                (position[0], position[1] - 1) not in black_locations and position[1] > 0:
+        if (position[0], position[1] - 1) not in white_piece_list_locations and \
+                (position[0], position[1] - 1) not in black_piece_list_locations and position[1] > 0:
             moves_list.append((position[0], position[1] - 1))
-        if (position[0], position[1] - 2) not in white_locations and \
-                (position[0], position[1] - 2) not in black_locations and position[1] == 6:
+        if (position[0], position[1] - 2) not in white_piece_list_locations and \
+                (position[0], position[1] - 2) not in black_piece_list_locations and position[1] == 6:
             moves_list.append((position[0], position[1] - 2))
-        if (position[0] + 1, position[1] - 1) in white_locations:
+        if (position[0] + 1, position[1] - 1) in white_piece_list_locations:
             moves_list.append((position[0] + 1, position[1] - 1))
-        if (position[0] - 1, position[1] - 1) in white_locations:
+        if (position[0] - 1, position[1] - 1) in white_piece_list_locations:
             moves_list.append((position[0] - 1, position[1] - 1))
     return moves_list
 
 # Verifica os movimentos válidos do cavalo
 # check valid knight moves
-def check_knight(position, color):
+def check_knight(position, color, white_piece_list_locations, black_piece_list_locations):
     moves_list = []
     if color == 'white':
-        enemies_list = black_locations
-        friends_list = white_locations
+        enemies_list = black_piece_list_locations
+        friends_list = white_piece_list_locations
     else:
-        friends_list = black_locations
-        enemies_list = white_locations
+        friends_list = black_piece_list_locations
+        enemies_list = white_piece_list_locations
     # 8 squares to check for knights, they can go two squares in one direction and one in another
     targets = [(1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1)]
     for i in range(8):
@@ -757,18 +787,18 @@ def check_knight(position, color):
 
 # Verifica os movimentos válidos apenas para a peça selecionada
 # check for valid moves for just selected piece
-def check_valid_moves():
-    if turn_step < 2:
-        options_list = white_options
+def check_valid_moves(white_option_main, black_options_main, turn_step_main, selection_main):
+    if turn_step_main < 2:
+        options_list = white_option_main
     else:
-        options_list = black_options
-    valid_options = options_list[selection]
+        options_list = black_options_main
+    valid_options = options_list[selection_main]
     return valid_options
 
 # Desenha os movimentos válidos apenas na tela
 # draw valid moves on screen
-def draw_valid(moves):
-    if turn_step < 2:
+def draw_valid(moves, turn_step_main):
+    if turn_step_main < 2:
         color = 'red'
     else:
         color = 'blue'
@@ -777,40 +807,40 @@ def draw_valid(moves):
 
 # Desenha as peças capturadas no lado direiro da tela
 # draw captured pieces on side of screen
-def draw_captured():
-    for i in range(len(captured_pieces_white)):
-        captured_piece = captured_pieces_white[i]
+def draw_captured(captured_pieces_white_main, captured_pieces_black_main):
+    for i in range(len(captured_pieces_white_main)):
+        captured_piece = captured_pieces_white_main[i]
         index = piece_list.index(captured_piece)
         screen.blit(small_black_images[index], (pc(943), pc(4) + pc(40) * i))
-    for i in range(len(captured_pieces_black)):
-        captured_piece = captured_pieces_black[i]
+    for i in range(len(captured_pieces_black_main)):
+        captured_piece = captured_pieces_black_main[i]
         index = piece_list.index(captured_piece)
         screen.blit(small_white_images[index], (pc(1023), pc(4) + pc(40) * i))
 
 # Desenha um quadrado vermelho ao redor do rei se ele estiver em cheque
 # draw a flashing square around king if in check
-def draw_check():
-    if turn_step < 2:
-        if 'king' in white_pieces:
-            king_index = white_pieces.index('king')
-            king_location = white_locations[king_index]
-            for i in range(len(black_options)):
-                if king_location in black_options[i]:
-                    if counter < 15:
-                        pygame.draw.rect(screen, 'dark red', [white_locations[king_index][0] * pc(80) + pc(283),
-                                                              white_locations[king_index][1] * pc(80) + pc(1), pc(80), pc(80)], pc(4))
+def draw_check(white_piece_list_locations, black_piece_list_locations, white_piece_list, black_piece_list, counter_main, turn_step_main, white_options_main, black_options_main):
+    if turn_step_main < 2:
+        if 'king' in white_piece_list:
+            king_index = white_piece_list.index('king')
+            king_location = white_piece_list_locations[king_index]
+            for i in range(len(black_options_main)):
+                if king_location in black_options_main[i]:
+                    if counter_main < 15:
+                        pygame.draw.rect(screen, 'dark red', [white_piece_list_locations[king_index][0] * pc(80) + pc(283),
+                                                              white_piece_list_locations[king_index][1] * pc(80) + pc(1), pc(80), pc(80)], pc(4))
     else:
-        if 'king' in black_pieces:
-            king_index = black_pieces.index('king')
-            king_location = black_locations[king_index]
-            for i in range(len(white_options)):
-                if king_location in white_options[i]:
-                    if counter < 15:
-                        pygame.draw.rect(screen, 'dark blue', [black_locations[king_index][0] * pc(80) + pc(283),
-                                                               black_locations[king_index][1] * pc(80) + pc(1), pc(80), pc(80)], pc(4))
+        if 'king' in black_piece_list:
+            king_index = black_piece_list.index('king')
+            king_location = black_piece_list_locations[king_index]
+            for i in range(len(white_options_main)):
+                if king_location in white_options_main[i]:
+                    if counter_main < 15:
+                        pygame.draw.rect(screen, 'dark blue', [black_piece_list_locations[king_index][0] * pc(80) + pc(283),
+                                                               black_piece_list_locations[king_index][1] * pc(80) + pc(1), pc(80), pc(80)], pc(4))
 
-def black_and_white_text(turn_step):
-    if turn_step <= 1:
+def black_and_white_text(turn_step_main):
+    if turn_step_main <= 1:
         color_text = 'white'
     else:
         color_text = 'black'
@@ -983,7 +1013,7 @@ def game_mode_screen_run(screen):
                     return scene
                 elif pc(403) <= event.pos[0] <= pc(1003) and pc(184) <= event.pos[1] <= pc(304):
                     play_audio(sound_button, 200)
-                    scene = "scene_game_one_player"
+                    scene = "scene_black_or_white"
                     return scene
                 elif pc(403) <= event.pos[0] <= pc(1003) and pc(344) <= event.pos[1] <= pc(464):
                     play_audio(sound_button, 200)
@@ -992,10 +1022,39 @@ def game_mode_screen_run(screen):
         
         pygame.display.flip()
         
-black_options = check_options(black_pieces, black_locations, 'black') 
-white_options = check_options(white_pieces, white_locations, 'white')
+def choose_black_or_white_screen_run(screen):
+    while True:
+        timer.tick(fps)
+        screen.fill(color_menu)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        draw_black_or_white(mouse_x, mouse_y)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:    
+                if event.pos[0] >= pc(20) and event.pos[0] <= pc(380) and event.pos[1] >= pc(20) and event.pos[1] <= pc(100):
+                    play_audio(sound_button, 200)
+                    scene = "scene_game_mode"
+                    return scene
+                elif pc(403) <= event.pos[0] <= pc(1003) and pc(184) <= event.pos[1] <= pc(304):
+                    play_audio(sound_button, 200)
+                    scene = "scene_game_one_player"
+                    return scene
+                elif pc(403) <= event.pos[0] <= pc(1003) and pc(344) <= event.pos[1] <= pc(464):
+                    play_audio(sound_button, 200)
+                    scene = "scene_game_one_player"
+                    return scene
+            
+                
+        pygame.display.flip()
+        
+black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
+white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
+black_options_one_player = check_options(black_pieces_one_player, black_locations_one_player, 'black', white_locations_one_player, black_locations_one_player)
+white_options_one_player = check_options(white_pieces_one_player, white_locations_one_player, 'white', white_locations_one_player, black_locations_one_player)
 
-    
 def main_screen_run(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces):
     global black_options, white_options, counter, winner, game_over, selection, turn_step
     global valid_moves, white_locations, black_locations, black_pieces, white_pieces, captured_pieces_black, captured_pieces_white, prior_white_locations, prior_black_locations, no_undo, prior_captured_white_pieces, prior_captured_black_pieces, save_prior_captured_piece, last_captured_piece_black, last_captured_piece_white
@@ -1010,14 +1069,14 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
             counter = 0
         screen.fill(color_menu)
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        draw_board(first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
-        draw_pieces()
-        draw_captured()
-        draw_check()
+        draw_board(first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces, turn_step)
+        draw_pieces(white_locations, black_locations, white_pieces, black_pieces, selection, turn_step)
+        draw_captured(captured_pieces_white, captured_pieces_black)
+        draw_check(white_locations, black_locations, white_pieces, black_pieces, counter, turn_step, white_options, black_options)
         draw_options(mouse_x, mouse_y)
         if selection != 100:
-            valid_moves = check_valid_moves()
-            draw_valid(valid_moves)
+            valid_moves = check_valid_moves(white_options, black_options, turn_step, selection)
+            draw_valid(valid_moves, turn_step)
         
         # event handling
         for event in pygame.event.get():
@@ -1043,8 +1102,8 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                                         piece, position = last_captured_piece_white
                                         white_pieces.append(piece)
                                         white_locations.append(position)
-                                black_options = check_options(black_pieces, black_locations, 'black')
-                                white_options = check_options(white_pieces, white_locations, 'white')
+                                black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
+                                white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
                             elif turn_step > 1:  # Se for o turno do preto
                                 turn_step = 0  # Passa para o turno do branco
                                 white_locations = prior_white_locations
@@ -1056,8 +1115,8 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                                         piece, position = last_captured_piece_black
                                         black_pieces.append(piece)
                                         black_locations.append(position)
-                                white_options = check_options(white_pieces, white_locations, 'white')
-                                black_options = check_options(black_pieces, black_locations, 'black')
+                                white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
+                                black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
                             no_undo = False
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
                 x_coord = (event.pos[0] - pc(283)) // pc(80) 
@@ -1089,8 +1148,8 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                             black_pieces.pop(black_piece)
                             black_locations.pop(black_piece)
                             save_prior_captured_piece = True
-                        black_options = check_options(black_pieces, black_locations, 'black')
-                        white_options = check_options(white_pieces, white_locations, 'white')
+                        black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
+                        white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
                         turn_step = 2
                         selection = 100
                         valid_moves = []
@@ -1120,8 +1179,8 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                             white_pieces.pop(white_piece)
                             white_locations.pop(white_piece)
                             save_prior_captured_piece = True
-                        black_options = check_options(black_pieces, black_locations, 'black')
-                        white_options = check_options(white_pieces, white_locations, 'white')
+                        black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
+                        white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
                         turn_step = 0
                         selection = 100
                         valid_moves = []
@@ -1151,13 +1210,180 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                     turn_step = 0
                     selection = 100
                     valid_moves = []
-                    black_options = check_options(black_pieces, black_locations, 'black')
-                    white_options = check_options(white_pieces, white_locations, 'white')
+                    black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
+                    white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
                     no_undo = False
                     play_audio(start_game_song, 0)
 
         if winner != '':
             game_over = True
+            draw_game_over()
+
+        pygame.display.flip()
+        
+def main_screen_run_one_player(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces):
+    global black_options_one_player, white_options_one_player, counter_one_player, winner_one_player, game_over_one_player, selection_one_player, turn_step_one_player
+    global valid_moves_one_player, white_locations_one_player, black_locations_one_player, black_pieces_one_player, white_pieces_one_player, captured_pieces_black_one_player, captured_pieces_white_one_player, prior_white_locations_one_player, prior_black_locations_one_player, no_undo_one_player, prior_captured_white_pieces_one_player, prior_captured_black_pieces_one_player, save_prior_captured_piece_one_player, last_captured_piece_black_one_player, last_captured_piece_white_one_player
+    
+    while True:
+        one_time_action_(lambda: play_audio(start_game_song, 0))
+        
+        timer.tick(fps)
+        if counter_one_player < 30:
+            counter_one_player += 1
+        else:
+            counter_one_player = 0
+        screen.fill(color_menu)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        draw_board(first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces, turn_step_one_player)
+        draw_pieces(white_locations_one_player, black_locations_one_player, white_pieces_one_player, black_pieces_one_player, selection_one_player, turn_step_one_player)
+        draw_captured(captured_pieces_white_one_player, captured_pieces_black_one_player)
+        draw_check(white_locations_one_player, black_locations_one_player, white_pieces_one_player, black_pieces_one_player, counter_one_player, turn_step_one_player, white_options_one_player, black_options_one_player)
+        draw_options(mouse_x, mouse_y)
+        if selection_one_player != 100:
+            valid_moves_one_player = check_valid_moves(white_options_one_player, black_options_one_player, turn_step_one_player, selection_one_player)
+            draw_valid(valid_moves_one_player, turn_step_one_player)
+        
+        # event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if event.pos[0] >= pc(20) and event.pos[0] <= pc(260) and event.pos[1] >= pc(20) and event.pos[1] <= pc(100):
+                    play_audio(sound_button, 200)
+                    scene = "scene_game_mode"
+                    return scene
+                elif event.pos[0] >= pc(20) and event.pos[0] <= pc(260) and event.pos[1] >= pc(270) and event.pos[1] <= pc(350) and not game_over_one_player:
+                        play_audio(sound_button, 200)
+                        if no_undo_one_player == True:
+                            if turn_step_one_player <= 1:  # Se for o turno do branco
+                                turn_step_one_player = 2  # Passa para o turno do preto
+                                black_locations_one_player = prior_black_locations_one_player
+                                black_pieces_one_player = prior_black_pieces
+                                 # Restaurar peça capturada
+                                if save_prior_captured_piece_one_player == True:
+                                    captured_pieces_black_one_player = prior_captured_black_pieces_one_player.copy()
+                                    if last_captured_piece_white_one_player:
+                                        piece, position = last_captured_piece_white_one_player
+                                        white_pieces_one_player.append(piece)
+                                        white_locations_one_player.append(position)
+                                black_options_one_player = check_options(black_pieces_one_player, black_locations_one_player, 'black', white_locations_one_player, black_locations_one_player)
+                                white_options_one_player = check_options(white_pieces_one_player, white_locations_one_player, 'white', white_locations_one_player, black_locations_one_player)
+                            elif turn_step_one_player > 1:  # Se for o turno do preto
+                                turn_step_one_player = 0  # Passa para o turno do branco
+                                white_locations_one_player = prior_white_locations_one_player
+                                white_pieces_one_player = prior_white_pieces
+                                if save_prior_captured_piece_one_player == True:
+                                    captured_pieces_white_one_player = prior_captured_white_pieces_one_player.copy()
+                                     # Restaurar peça capturada
+                                    if last_captured_piece_black_one_player:
+                                        piece, position = last_captured_piece_black_one_player
+                                        black_pieces_one_player.append(piece)
+                                        black_locations_one_player.append(position)
+                                white_options_one_player = check_options(white_pieces_one_player, white_locations_one_player, 'white', white_locations_one_player, black_locations_one_player)
+                                black_options_one_player = check_options(black_pieces_one_player, black_locations_one_player, 'black', white_locations_one_player, black_locations_one_player)
+                            no_undo_one_player = False
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over_one_player:
+                x_coord = (event.pos[0] - pc(283)) // pc(80) 
+                y_coord = event.pos[1] // pc(80)
+                click_coords = (x_coord, y_coord)
+                
+                if turn_step_one_player <= 1:
+                    # Copiar a localização das peças antes de mudar
+                    prior_white_locations_one_player = white_locations_one_player.copy()
+                    prior_white_pieces = white_pieces_one_player.copy()
+                    if event.pos[0] >= pc(20) and event.pos[0] <= pc(260) and event.pos[1] >= pc(145) and event.pos[1] <= pc(225):
+                        play_audio(win_game_song, 0)
+                        winner_one_player = language_option("black_winner")
+                    if click_coords in white_locations_one_player:
+                        selection_one_player = white_locations_one_player.index(click_coords)
+                        if turn_step_one_player == 0:
+                            turn_step_one_player = 1
+                    if click_coords in valid_moves_one_player and selection_one_player != 100:
+                        play_piece_movie_audio()
+                        white_locations_one_player[selection_one_player] = click_coords
+                        if click_coords in black_locations_one_player:
+                            play_captured_movie_audio()
+                            prior_captured_white_pieces_one_player = captured_pieces_white_one_player.copy()
+                            black_piece = black_locations_one_player.index(click_coords)
+                            last_captured_piece_black_one_player = (black_pieces_one_player[black_piece], black_locations_one_player[black_piece])  # Salvar peça e posição
+                            captured_pieces_white_one_player.append(black_pieces_one_player[black_piece])
+                            if black_pieces_one_player[black_piece] == 'king':
+                                play_audio(win_game_song, 0)
+                                winner_one_player = language_option("white_winner")
+                            black_pieces_one_player.pop(black_piece)
+                            black_locations_one_player.pop(black_piece)
+                            save_prior_captured_piece_one_player = True
+                        black_options_one_player = check_options(black_pieces_one_player, black_locations_one_player, 'black', white_locations_one_player, black_locations_one_player)
+                        white_options_one_player = check_options(white_pieces_one_player, white_locations_one_player, 'white', white_locations_one_player, black_locations_one_player)
+                        turn_step_one_player = 2
+                        selection_one_player = 100
+                        valid_moves_one_player = []
+                        no_undo_one_player = True
+                if turn_step_one_player > 1:
+                    prior_black_locations_one_player = black_locations_one_player.copy()
+                    prior_black_pieces = black_pieces_one_player.copy()
+                    if event.pos[0] >= pc(20) and event.pos[0] <= pc(260) and event.pos[1] >= pc(145) and event.pos[1] <= pc(225):
+                        play_audio(win_game_song, 0)
+                        winner_one_player = language_option("white_winner")
+                    if click_coords in black_locations_one_player:
+                        selection_one_player = black_locations_one_player.index(click_coords)
+                        if turn_step_one_player == 2:
+                            turn_step_one_player = 3
+                    if click_coords in valid_moves_one_player and selection_one_player != 100:
+                        play_piece_movie_audio()
+                        black_locations_one_player[selection_one_player] = click_coords
+                        if click_coords in white_locations_one_player:
+                            play_captured_movie_audio()
+                            prior_captured_black_pieces_one_player = captured_pieces_black_one_player.copy()
+                            white_piece = white_locations_one_player.index(click_coords)
+                            last_captured_piece_white_one_player = (white_pieces_one_player[white_piece], white_locations_one_player[white_piece])  # Salvar peça e posição
+                            captured_pieces_black_one_player.append(white_pieces_one_player[white_piece])
+                            if white_pieces_one_player[white_piece] == 'king':
+                                play_audio(win_game_song, 0)
+                                winner_one_player = language_option("black_winner")
+                            white_pieces_one_player.pop(white_piece)
+                            white_locations_one_player.pop(white_piece)
+                            save_prior_captured_piece_one_player = True
+                        black_options_one_player = check_options(black_pieces_one_player, black_locations_one_player, 'black', white_locations_one_player, black_locations_one_player)
+                        white_options_one_player = check_options(white_pieces_one_player, white_locations_one_player, 'white', white_locations_one_player, black_locations_one_player)
+                        turn_step_one_player = 0
+                        selection_one_player = 100
+                        valid_moves_one_player = []
+                        no_undo_one_player = True
+            if event.type == pygame.KEYDOWN and game_over_one_player:
+                if event.key == pygame.K_RETURN:
+                    game_over_one_player = False
+                    winner_one_player = ''
+                    white_pieces_one_player = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
+                    white_locations_one_player = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
+                                    (0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)]
+                    black_pieces_one_player = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
+                    black_locations_one_player = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
+                                    (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
+                    prior_white_pieces = white_pieces_one_player
+                    prior_white_locations_one_player = white_locations_one_player
+                    prior_black_pieces = black_pieces_one_player
+                    prior_black_locations_one_player = black_locations_one_player
+                    
+                    captured_pieces_white_one_player = []
+                    captured_pieces_black_one_player = []
+                    prior_captured_white_pieces_one_player = []
+                    prior_captured_black_pieces_one_player = []
+                    
+                    last_captured_piece_white_one_player = None
+                    last_captured_piece_black_one_player = None
+                    turn_step_one_player = 0
+                    selection_one_player = 100
+                    valid_moves_one_player = []
+                    black_options_one_player = check_options(black_pieces_one_player, black_locations_one_player, 'black', white_locations_one_player, black_locations_one_player)
+                    white_options_one_player = check_options(white_pieces_one_player, white_locations_one_player, 'white', white_locations_one_player, black_locations_one_player)
+                    no_undo_one_player = False
+                    play_audio(start_game_song, 0)
+
+        if winner_one_player != '':
+            game_over_one_player = True
             draw_game_over()
 
         pygame.display.flip()
@@ -1169,8 +1395,10 @@ def main(first_color_square, second_color_square, color_rect_captured_pieces, co
             scene = menu_screen_run(screen)
         elif scene == "scene_game":
             scene = main_screen_run(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
+        elif scene == "scene_black_or_white":
+            scene = choose_black_or_white_screen_run(screen)
         elif scene == "scene_game_one_player":
-            scene  = main_screen_run(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
+            scene  = main_screen_run_one_player(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
         elif scene == "scene_settings":
             scene = settings_screen_run(screen)
         elif scene == "scene_language":
