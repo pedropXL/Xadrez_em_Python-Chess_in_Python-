@@ -10,10 +10,6 @@ import io
 import os
 import time
 import soundfile as sf
-from sklearn.tree import DecisionTreeClassifier
-import pickle
-import numpy as np
-from sklearn.preprocessing import LabelEncoder
 
 pygame.init()
 pygame.mixer.init()
@@ -139,8 +135,6 @@ black_pieces_one_player = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop'
                            'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
 black_locations_one_player = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
                               (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
-list_of_white_chess_moves = []
-list_of_black_chess_moves = []
 
 captured_pieces_white = []
 captured_pieces_black = []
@@ -1060,91 +1054,6 @@ def choose_black_or_white_screen_run(screen):
                 
         pygame.display.flip()
 
-def collecting_data(file_path, data_collected):
-    with open(file_path, 'rb') as file:
-        loaded_data = pickle.load(file)
-                        
-        loaded_data.append(data_collected.copy())
-        with open(file_path, 'wb') as file:
-            pickle.dump(loaded_data, file)
-            print(f"{file_path} = {loaded_data}")
-
-# Função para transformar tuplas (x, y) em valores únicos
-def tuple_to_value(move):
-    return move[0] * 8 + move[1]  # Para um tabuleiro 8x8
-
-def open_data(file_path):
-    with open(file_path, 'rb') as file:
-        loaded_data = pickle.load(file)
-    
-    return loaded_data
-
-def pre_processing_data(file_path):
-    loaded_data = open_data(file_path)
-
-    # Transformar todas as tuplas em valores únicos
-    all_moves = [tuple_to_value(move) for sublist in loaded_data for move in sublist]
-
-    # Usar LabelEncoder para codificar os valores únicos
-    label_encoder = LabelEncoder()
-    label_encoder.fit(all_moves)
-
-    # Encontrar o comprimento máximo das listas de movimentos
-    max_length = max(len(sublist) for sublist in loaded_data)
-
-    # Preparar os dados
-    X = []
-    y = []
-
-    for i in range(len(loaded_data) - 1):
-        # Transformar cada lista de movimentos em valores únicos
-        x_sequence = [tuple_to_value(move) for move in loaded_data[i]]
-        y_sequence = [tuple_to_value(move) for move in loaded_data[i + 1]]
-
-        # Preencher as sequências mais curtas com -1
-        x_sequence.extend([-1] * (max_length - len(x_sequence)))
-        y_sequence.extend([-1] * (max_length - len(y_sequence)))
-
-        X.append(x_sequence)
-        y.append(y_sequence)
-
-    X = np.array(X)
-    y = np.array(y)
-    
-    return X, y, max_length, loaded_data
-
-def predict_moves(file_path):
-    X, y, max_length, loaded_data = pre_processing_data(file_path)
-     # Treinamento do modelo
-    model = DecisionTreeClassifier()
-    model.fit(X, y)
-
-    # Previsão
-    last_sequence = [tuple_to_value(move) for move in loaded_data[-1]]
-    last_sequence.extend([-1] * (max_length - len(last_sequence)))  # Preencher com -1
-    last_sequence = np.array(last_sequence).reshape(1, -1)
-    predicted_moves = model.predict(last_sequence)
-
-    # Transformar de volta para coordenadas (ignorando valores de preenchimento -1)
-    predicted_moves = [(move // 8, move % 8) for move in predicted_moves[0] if move != -1]
-    print("Próximos movimentos previstos:", predicted_moves)
-    
-    return predicted_moves
-
-def converting_data_in_list(np_data):
-    # Converter np.int64 para int
-    converted_moves = [(int(x), int(y)) for x, y in np_data]
-
-    return converted_moves
-    
-def ai_choose_move(file_path):
-    predicted_moves = predict_moves(file_path)
-    converted_moves = converting_data_in_list(predicted_moves)
-    
-    print("Movimentos convertidos:", converted_moves)
-    
-    
-
 black_options = check_options(black_pieces, black_locations, 'black', white_locations, black_locations) 
 white_options = check_options(white_pieces, white_locations, 'white', white_locations, black_locations)
 
@@ -1227,7 +1136,6 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                             turn_step = 1
                     if click_coords in valid_moves and selection != 100:
                         play_piece_movie_audio()
-                        collecting_data('list_of_white_chess_moves.pkl', white_locations)
 
                         white_locations[selection] = click_coords
                         if click_coords in black_locations:
@@ -1260,7 +1168,6 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
                             turn_step = 3
                     if click_coords in valid_moves and selection != 100:
                         play_piece_movie_audio()
-                        collecting_data('list_of_black_chess_moves.pkl', black_locations)
                         
                         black_locations[selection] = click_coords
                         if click_coords in white_locations:
