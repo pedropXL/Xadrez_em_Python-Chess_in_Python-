@@ -7,7 +7,6 @@
 ---
 ### **Clique no badger para acessar o texto em Inglês:** [![Static Badge](https://img.shields.io/badge/English%20-%20US%20-%20black?style=plastic&labelColor=yellow)](README.en.md)
 
-
 ---
 
 ## **Visão geral**
