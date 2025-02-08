@@ -3,7 +3,6 @@
 # Primeira parte do Código: Declaração das Funções e Variáveis
 
 import pygame
-import sys
 from PIL import Image
 import random
 import io
@@ -1019,7 +1018,7 @@ def game_mode_screen_run(screen):
                     return scene
         
         pygame.display.flip()
-         
+    
 def choose_black_or_white_screen_run(screen):
     global white_piece_ai, black_piece_ai
     while True:
@@ -1044,7 +1043,7 @@ def choose_black_or_white_screen_run(screen):
                     black_piece_ai = True
                     white_piece_ai = False
                     scene = "scene_game_one_player"
-                    return scene, black_piece_ai, white_piece_ai
+                    return scene, white_piece_ai, black_piece_ai
                 elif pc(403) <= event.pos[0] <= pc(1003) and pc(344) <= event.pos[1] <= pc(464):
                     play_audio(sound_button, 200)
                     white_piece_ai = True
@@ -1225,9 +1224,11 @@ def main_screen_run(screen, first_color_square, second_color_square, color_rect_
         one_time_action_(lambda: play_audio(start_game_song, 0))
         pygame.display.flip()
         
-def main_screen_run_one_player(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces):
+def main_screen_run_one_player(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces, white_piece_ai, black_piece_ai):
     global black_options_one_player, white_options_one_player, counter_one_player, winner_one_player, game_over_one_player, selection_one_player, turn_step_one_player
-    global valid_moves_one_player, white_locations_one_player, black_locations_one_player, black_pieces_one_player, white_pieces_one_player, captured_pieces_black_one_player, captured_pieces_white_one_player, prior_white_locations_one_player, prior_black_locations_one_player, no_undo_one_player, prior_captured_white_pieces_one_player, prior_captured_black_pieces_one_player, save_prior_captured_piece_one_player, last_captured_piece_black_one_player, last_captured_piece_white_one_player, white_piece_ai, black_piece_ai
+    global valid_moves_one_player, white_locations_one_player, black_locations_one_player, black_pieces_one_player, white_pieces_one_player, captured_pieces_black_one_player, captured_pieces_white_one_player, prior_white_locations_one_player, prior_black_locations_one_player, no_undo_one_player, prior_captured_white_pieces_one_player, prior_captured_black_pieces_one_player, save_prior_captured_piece_one_player, last_captured_piece_black_one_player, last_captured_piece_white_one_player
+    print(f"white_piece_ai = {white_piece_ai}")
+    print(f"black_piece_ai = {black_piece_ai}")
     
     count = 0
     while True:
@@ -1322,7 +1323,7 @@ def main_screen_run_one_player(screen, first_color_square, second_color_square, 
                     turn_step_one_player = 2
                     continue
                 
-                if black_piece_ai == True and turn_step_one_player == 2:
+                elif black_piece_ai == True and turn_step_one_player == 2:
                     prior_black_locations_one_player = black_locations_one_player.copy()
                     prior_black_pieces = black_pieces_one_player.copy()
                     # Filtrando as posições válidas diretamente
@@ -1470,7 +1471,7 @@ def main(first_color_square, second_color_square, color_rect_captured_pieces, co
         elif scene == "scene_game":
             scene = main_screen_run(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
         elif scene == "scene_game_one_player":
-            scene  = main_screen_run_one_player(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
+            scene  = main_screen_run_one_player(screen, first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces, white_piece_ai, black_piece_ai)
         elif scene == "scene_settings":
             scene = settings_screen_run(screen)
         elif scene == "scene_language":
@@ -1486,4 +1487,3 @@ if __name__ == "__main__":
     main(first_color_square, second_color_square, color_rect_captured_pieces, color_bars_captured_pieces)
 
 pygame.quit()
-sys.exit()
