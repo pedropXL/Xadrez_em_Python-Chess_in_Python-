@@ -5,7 +5,7 @@
 ![Static Badge](https://img.shields.io/badge/English%20-%20US%20-%20black?style=plastic&labelColor=yellow)
 
 ---
-### **Click in the badger for acess the text in Portuguese:** [![Static Badge](https://img.shields.io/badge/Portugu%C3%AAs%20-%20BR%20-%20green?style=plastic&labelColor=blue)](README.pt-br.md)
+### **Click in the badger for access the text in Portuguese:** [![Static Badge](https://img.shields.io/badge/Portugu%C3%AAs%20-%20BR%20-%20green?style=plastic&labelColor=blue)](README.pt-br.md)
 
 ## **Overview**
 
