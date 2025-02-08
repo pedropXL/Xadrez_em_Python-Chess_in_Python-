@@ -1,6 +1,6 @@
 # **Jogo de Xadrez em Python**
 ![Python](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)
-![Static Badge](https://img.shields.io/badge/LinkedIn-www.linkedin.com%2Fin%2Fpedropedrazzi-blue)
+[![Static Badge](https://img.shields.io/badge/LinkedIn-www.linkedin.com%2Fin%2Fpedropedrazzi-blue)](https://www.linkedin.com/in/pedropedrazzi)
 ![Static Badge](https://img.shields.io/badge/License-MIT%20License-red)
 ![Static Badge](https://img.shields.io/badge/Portugu%C3%AAs%20-%20BR%20-%20green?style=plastic&labelColor=blue)
 
@@ -35,14 +35,14 @@ Este é um jogo de xadrez desenvolvido em Python usando a biblioteca Pygame. O j
 ---
 
 ## **Caraterísticas**
-- Modo de um jogador**: Joga contra o computador.
-- Modo de dois jogadores**: Joga contra um amigo na mesma máquina.
-- Tabuleiro personalizável**: Escolha entre diferentes temas e cores de tabuleiro.
-- Feedback de áudio**: Efeitos sonoros para movimentos de peças, capturas e fim de jogo.
-- Desativar áudio**: É possível desativar o áudio se quiser.
-- Suporte a idiomas**: Disponível em inglês, português e espanhol.
-- Desfazer jogada**: Opção para desfazer o último movimento (limitado a um desfazer por turno).
-- Deteção de Game Over**: Detecta automaticamente o xeque-mate e declara o vencedor.
+- **Modo de um jogador**: Joga contra o computador.
+- **Modo de dois jogadores**: Joga contra um amigo na mesma máquina.
+- **Tabuleiro personalizável**: Escolha entre diferentes temas e cores de tabuleiro.
+- **Feedback de áudio**: Efeitos sonoros para movimentos de peças, capturas e fim de jogo.
+- **Desativar áudio**: É possível desativar o áudio se quiser.
+- **Suporte a idiomas**: Disponível em inglês, português e espanhol.
+- **Desfazer jogada**: Opção para desfazer o último movimento (limitado a um desfazer por turno).
+- **Deteção de Game Over**: Detecta automaticamente o xeque-mate e declara o vencedor.
 
 ---
 
@@ -50,7 +50,7 @@ Este é um jogo de xadrez desenvolvido em Python usando a biblioteca Pygame. O j
 - Python 3.x
 - Biblioteca Pygame: Para fornecer a estrutura para construir o jogo.
 - Biblioteca PIL (Pillow): Para processamento e redimensionamento de imagens.
-- biblioteca soundfile: Para lidar com ficheiros áudio.
+- Biblioteca soundfile: Para lidar com ficheiros áudio.
 
 ---
 
@@ -82,11 +82,11 @@ Este é um jogo de xadrez desenvolvido em Python usando a biblioteca Pygame. O j
 
 ## **Como jogar**
 
-- Controlos do rato: Use o mouse para clicar nos botões, selecionar e mover as peças.
+- Controles do Mouse: Use o mouse para clicar nos botões, selecionar e mover as peças.
 - Baseado em turnos: Os jogadores movem as suas peças à vez. As brancas movem-se sempre primeiro.
 - Capturar peças: Mova a sua peça para uma casa ocupada por uma peça do adversário para a capturar.
-- Anular a jogada: Para anular a jogada, clique em Anular no lado esquerdo do ecrã do jogo principal.
-- Desistir: Se quiseres desistir e(ou) recomeçar o jogo basta clicares em Desistir no lado esquerdo do ecrã no jogo principal.
+- Voltar a jogada: Para anular a jogada, clique em "Voltar" no lado esquerdo do ecrã do jogo principal.
+- Desistir: Se quiser desistir e(ou) recomeçar o jogo basta clicar em Desistir no lado esquerdo do ecrã no jogo principal.
 - Xeque-mate: O jogo termina quando o rei de um jogador está em xeque-mate.
 - Reiniciar o jogo: Para reiniciar o jogo após o xeque-mate basta digitar Enter.
 
@@ -100,7 +100,7 @@ Este é um jogo de xadrez desenvolvido em Python usando a biblioteca Pygame. O j
 
 ## **Personalização**
 
-- Temas do tabuleiro: Personaliza o aspeto do tabuleiro selecionando diferentes temas na área Personalizar.
+- Temas do tabuleiro: Personaliza o aspecto do tabuleiro selecionando diferentes temas na área Personalizar.
 
 ---
 
@@ -157,7 +157,7 @@ Este projeto está licenciado sob a licença MIT. Veja o ficheiro LICENSE para m
 
 ## **Links**
 
-- [Linkedin](www.linkedin.com/in/pedropedrazzi)
+- [Linkedin](https://www.linkedin.com/in/pedropedrazzi)
 - [Github](https://github.com/pedropXL)
 
 ## **Contacto e Feedback**

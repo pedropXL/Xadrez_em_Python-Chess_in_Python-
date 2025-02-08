@@ -1,6 +1,6 @@
 # **Chess Game in Python**
 ![Python](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)
-![Static Badge](https://img.shields.io/badge/LinkedIn-www.linkedin.com%2Fin%2Fpedropedrazzi-blue)
+[![Static Badge](https://img.shields.io/badge/LinkedIn-www.linkedin.com%2Fin%2Fpedropedrazzi-blue)](https://www.linkedin.com/in/pedropedrazzi)
 ![Static Badge](https://img.shields.io/badge/License-MIT%20License-red)
 ![Static Badge](https://img.shields.io/badge/English%20-%20US%20-%20black?style=plastic&labelColor=yellow)
 
@@ -48,7 +48,7 @@ This is a chess game developed in Python using the Pygame library. The game feat
 - Python 3.x
 - Pygame library: For providing the framework to build the game.
 - PIL (Pillow) library: For image processing and resizing.
-- soundfile library: For handling audio files.
+- Soundfile library: For handling audio files.
 
 ---
 
@@ -155,7 +155,7 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 ## **Links**
 
-- [Linkedin](www.linkedin.com/in/pedropedrazzi)
+- [Linkedin](https://www.linkedin.com/in/pedropedrazzi)
 - [Github](https://github.com/pedropXL)
 
 ## **Contact and Feedback**
