@@ -2,8 +2,10 @@
 ![Python](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)
 ![Static Badge](https://img.shields.io/badge/LinkedIn-www.linkedin.com%2Fin%2Fpedropedrazzi-blue)
 ![Static Badge](https://img.shields.io/badge/License-MIT%20License-red)
+![Static Badge](https://img.shields.io/badge/English%20-%20US%20-%20black?style=plastic&labelColor=yellow)
 
 ---
+### **Click in the badger for acess the text in Portuguese:** [![Static Badge](https://img.shields.io/badge/Portugu%C3%AAs%20-%20BR%20-%20green?style=plastic&labelColor=blue)](README.pt-br.md)
 
 ## **Overview**
 
